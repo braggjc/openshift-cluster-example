@@ -40,7 +40,7 @@ parameters:
   - name: MONGODB_REPLICA_NAME
     displayName: "Replica Set Name"
     description: "The name of the replica set."
-    value: mongo-rs
+    value: rs0
     required: true
 
   - name: MONGODB_KEYFILE_VALUE
