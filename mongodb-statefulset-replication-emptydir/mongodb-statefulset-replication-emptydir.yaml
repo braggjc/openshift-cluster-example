@@ -1,7 +1,7 @@
 kind: Template
 apiVersion: v1
 metadata:
-  name: mongodb-statefulset-replication
+  name: mongodb-statefulset-replication-emptydir
   annotations:
     description: "MongoDB Replication Example (based on StatefulSet)."
     iconClass: "icon-mongodb"
