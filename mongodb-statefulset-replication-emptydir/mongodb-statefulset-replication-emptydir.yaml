@@ -10,6 +10,7 @@ parameters:
   - name: MONGODB_USER
     displayName: "MongoDB Connection Username"
     description: "Username for MongoDB user that will be used for accessing the database."
+    value: oiauser
     generate: expression
     from: "[a-zA-Z0-9]{3}"
     required: true
@@ -17,6 +18,7 @@ parameters:
   - name: MONGODB_PASSWORD
     displayName: "MongoDB Connection Password"
     description: "Password for the MongoDB connection user."
+    value: oiapassword
     generate: expression
     from: "[a-zA-Z0-9]{16}"
     required: true
@@ -30,6 +32,7 @@ parameters:
   - name: MONGODB_ADMIN_PASSWORD
     displayName: "MongoDB Admin Password"
     description: "Password for the database admin user."
+    value: oiaadminpassword
     generate: expression
     from: "[a-zA-Z0-9]{16}"
     required: true
