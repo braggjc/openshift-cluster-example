@@ -106,7 +106,7 @@ objects:
     spec:
       # pets get DNS/hostnames that follow the pattern: ${metadata.name}-NUM.${spec.serviceName}.default.svc.cluster.local
       serviceName: "${MONGODB_SERVICE_NAME}-internal"
-      replicas: 3
+      replicas: 2
       # describes the pod that will be created if insufficient replicas are detected
       template:
         metadata:
