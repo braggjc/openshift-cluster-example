@@ -25,7 +25,6 @@ import java.util.logging.Logger;
 
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
-import javax.persistence.NoResultException;
 import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
 import javax.validation.ValidationException;
@@ -40,9 +39,8 @@ import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-import org.jboss.as.quickstarts.kitchensink.data.MemberRepository;
 import org.jboss.as.quickstarts.kitchensink.model.Member;
-import org.jboss.as.quickstarts.kitchensink.service.MemberRegistration;
+import org.jboss.as.quickstarts.kitchensink.data.MemberList;
 
 /**
  * JAX-RS Example
@@ -52,7 +50,7 @@ import org.jboss.as.quickstarts.kitchensink.service.MemberRegistration;
 @Path("/members")
 @RequestScoped
 public class MemberResourceRESTService {
-    
+
     @Inject
     private Logger log;
 
@@ -60,26 +58,25 @@ public class MemberResourceRESTService {
     private Validator validator;
 
     @Inject
-    private MemberRepository repository;
-
-    @Inject
-    MemberRegistration registration;
+    MemberList memberList;
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public List<Member> listAllMembers() {
-        return repository.findAllOrderedByName();
+        return memberList.retrieveAllMembersOrderedByName();
     }
 
     @GET
     @Path("/{id:[0-9][0-9]*}")
     @Produces(MediaType.APPLICATION_JSON)
     public Member lookupMemberById(@PathParam("id") long id) {
-        Member member = repository.findById(id);
-        if (member == null) {
-            throw new WebApplicationException(Response.Status.NOT_FOUND);
-        }
-        return member;
+
+          for(Member member : memberList.getMembers()) {
+              if(member.getId().equals(id)) {
+                return member;
+              }
+          }
+          return null;
     }
 
     /**
@@ -91,13 +88,16 @@ public class MemberResourceRESTService {
     @Produces(MediaType.APPLICATION_JSON)
     public Response createMember(Member member) {
 
+        log.info("creating member");
+
         Response.ResponseBuilder builder = null;
 
         try {
             // Validates member using bean validation
             validateMember(member);
+            log.info("member valid");
 
-            registration.register(member);
+            memberList.registerMember(member);
 
             // Create an "ok" response
             builder = Response.ok();
@@ -128,7 +128,7 @@ public class MemberResourceRESTService {
      * If the error is caused because an existing member with the same email is registered it throws a regular validation
      * exception so that it can be interpreted separately.
      * </p>
-     * 
+     *
      * @param member Member to be validated
      * @throws ConstraintViolationException If Bean Validation errors exist
      * @throws ValidationException If member with the same email already exists
@@ -150,7 +150,7 @@ public class MemberResourceRESTService {
     /**
      * Creates a JAX-RS "Bad Request" response including a map of all violation fields, and their message. This can then be used
      * by clients to show violations.
-     * 
+     *
      * @param violations A set of violations that needs to be reported
      * @return JAX-RS response containing all violations
      */
@@ -169,17 +169,17 @@ public class MemberResourceRESTService {
     /**
      * Checks if a member with the same email address is already registered. This is the only way to easily capture the
      * "@UniqueConstraint(columnNames = "email")" constraint from the Member class.
-     * 
+     *
      * @param email The email to check
      * @return True if the email already exists, and false otherwise
      */
     public boolean emailAlreadyExists(String email) {
-        Member member = null;
-        try {
-            member = repository.findByEmail(email);
-        } catch (NoResultException e) {
-            // ignore
-        }
-        return member != null;
+
+      for(Member member : memberList.getMembers()) {
+          if(member.getEmail().equals(email)) {
+            return true;
+          }
+      }
+      return false;
     }
 }
